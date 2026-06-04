@@ -1,0 +1,124 @@
+name: 🚀 Release & Docker Build
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '.github/**'
+      - '*.md'
+      - 'docs/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'docker-compose*.yml'
+      - '.dockerignore'
+      - '.env.example'
+  workflow_dispatch:
+    inputs:
+      force-release:
+        description: 'force create release'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  packages: write
+  security-events: write
+
+jobs:
+  # ============================================
+  # Validation Jobs
+  # ============================================
+
+  validate-compose:
+    name: 🔍 Validate Docker Compose
+    uses: bauer-group/automation-templates/.github/workflows/modules-validate-compose.yml@main
+    with:
+      compose-files: '["docker-compose.development.yml", "docker-compose.single.yml", "docker-compose.traefik.yml", "docker-compose.coolify.yml"]'
+      env-file: '.env.example'
+      validate-services: '["uptime-kuma"]'
+
+  validate-scripts:
+    name: 🔍 Validate Shell Scripts
+    uses: bauer-group/automation-templates/.github/workflows/modules-validate-shellscript.yml@main
+    with:
+      scan-directory: '.'
+      severity: 'error'
+
+  # ============================================
+  # Release Job (only on main branch push)
+  # ============================================
+
+  release:
+    name: 📦 Create Semantic Release
+    needs: [validate-compose, validate-scripts]
+    if: |
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+      needs.validate-compose.result == 'success' &&
+      needs.validate-scripts.result == 'success'
+    uses: bauer-group/automation-templates/.github/workflows/modules-semantic-release.yml@main
+    with:
+      target-branch: 'main'
+      dry-run: false
+      force-release: ${{ inputs.force-release || false }}
+    secrets: inherit
+
+  # ============================================
+  # Docker Build & Push (uptime-kuma image)
+  # ============================================
+
+  docker-build-uptime-kuma-release:
+    name: 🐳 Build & Push uptime-kuma
+    needs: release
+    if: needs.release.outputs.release-created == 'true'
+    uses: bauer-group/automation-templates/.github/workflows/docker-build.yml@main
+    with:
+      deploy-environment: 'production'
+      publish-to: 'ghcr'
+      ghcr-image-name: 'bauer-group/CS-StatusMonitor/uptime-kuma'
+      docker-image-name: 'bauergroup/cs-statusmonitor'
+
+      release-version: ${{ needs.release.outputs.version }}
+      image-tags: 'stable'
+
+      update-dockerfile-version: true
+      auto-tags: true
+      latest-tag: true
+
+      dockerfile-path: './src/uptime-kuma/Dockerfile'
+      docker-context: './src/uptime-kuma'
+      platforms: 'linux/amd64'
+
+      push: true
+
+      security-scan: false
+      security-fail-on: 'CRITICAL'
+      generate-sbom: true
+      sync-dockerhub-readme: true
+    secrets: inherit
+
+  docker-build-uptime-kuma-pr:
+    name: 🔨 Validate uptime-kuma Build (PR)
+    needs: [validate-compose, validate-scripts]
+    if: |
+      github.event_name == 'pull_request' &&
+      needs.validate-compose.result == 'success' &&
+      needs.validate-scripts.result == 'success'
+    uses: bauer-group/automation-templates/.github/workflows/docker-build.yml@main
+    with:
+      publish-to: 'ghcr'
+      ghcr-image-name: 'bauer-group/CS-StatusMonitor/uptime-kuma'
+
+      auto-tags: true
+      dockerfile-path: './src/uptime-kuma/Dockerfile'
+      docker-context: './src/uptime-kuma'
+      platforms: 'linux/amd64'
+
+      push: false
+
+      security-scan: false
+      security-fail-on: 'CRITICAL'
+    secrets: inherit

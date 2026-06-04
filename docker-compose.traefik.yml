@@ -1,0 +1,91 @@
+# =============================================================================
+# Status Monitor (Uptime Kuma) - Single Server Mode (Traefik Reverse Proxy)
+# =============================================================================
+# Usage: docker compose -f docker-compose.traefik.yml up -d
+#
+# Prerequisites:
+#   - Traefik running on the external ${PROXY_NETWORK} network
+#   - DNS: ${SERVICE_HOSTNAME} -> this host
+#
+# The dashboard is served over HTTPS by Traefik (Let's Encrypt). Uptime Kuma's
+# socket.io WebSocket is upgraded transparently over the same HTTP router — no
+# extra Traefik configuration is required.
+#
+# Access:
+#   - Dashboard  https://${SERVICE_HOSTNAME}
+#
+# First start: open the dashboard and complete the setup wizard to create the
+# admin account (persisted in the uptime-kuma-data volume).
+# =============================================================================
+
+
+### Service Templates ###
+x-uptime-kuma-common: &uptime-kuma-common
+  image: ${UPTIME_KUMA_IMAGE:-ghcr.io/bauer-group/cs-statusmonitor/uptime-kuma}:${UPTIME_KUMA_IMAGE_VERSION:-latest}
+  restart: unless-stopped
+  logging:
+    driver: json-file
+    options:
+      max-size: "50m"
+      max-file: "3"
+  environment:
+    - TZ=${TIME_ZONE:-Etc/UTC}
+    - UPTIME_KUMA_HOST=${UPTIME_KUMA_HOST:-::}
+    - UPTIME_KUMA_WS_ORIGIN_CHECK=${UPTIME_KUMA_WS_ORIGIN_CHECK:-cors-like}
+    - UPTIME_KUMA_DISABLE_FRAME_SAMEORIGIN=${UPTIME_KUMA_DISABLE_FRAME_SAMEORIGIN:-false}
+  healthcheck:
+    test: ["CMD", "extra/healthcheck"]
+    interval: 60s
+    timeout: 30s
+    retries: 5
+    start_period: 180s
+
+
+services:
+### Status Monitor ###
+  uptime-kuma:
+    <<: *uptime-kuma-common
+    container_name: ${STACK_NAME:-uptime-kuma}_SERVER
+    expose:
+      - 3001/tcp
+    volumes:
+      - uptime-kuma-data:/app/data
+    networks:
+      local:
+      proxy:
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=${PROXY_NETWORK:-EDGEPROXY}"
+
+      # ── HTTP -> HTTPS redirect ──────────────────────────────────────────
+      - "traefik.http.routers.${STACK_NAME:-uptime-kuma}-http.rule=Host(`${SERVICE_HOSTNAME}`)"
+      - "traefik.http.routers.${STACK_NAME:-uptime-kuma}-http.entrypoints=web"
+      - "traefik.http.routers.${STACK_NAME:-uptime-kuma}-http.middlewares=${STACK_NAME:-uptime-kuma}-redirect-to-secure"
+      - "traefik.http.middlewares.${STACK_NAME:-uptime-kuma}-redirect-to-secure.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.${STACK_NAME:-uptime-kuma}-redirect-to-secure.redirectscheme.permanent=true"
+
+      # ── Dashboard — HTTPS ───────────────────────────────────────────────
+      - "traefik.http.routers.${STACK_NAME:-uptime-kuma}.rule=Host(`${SERVICE_HOSTNAME}`)"
+      - "traefik.http.routers.${STACK_NAME:-uptime-kuma}.entrypoints=web-secure"
+      - "traefik.http.routers.${STACK_NAME:-uptime-kuma}.tls=true"
+      - "traefik.http.routers.${STACK_NAME:-uptime-kuma}.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.${STACK_NAME:-uptime-kuma}.service=${STACK_NAME:-uptime-kuma}"
+      - "traefik.http.services.${STACK_NAME:-uptime-kuma}.loadBalancer.server.port=3001"
+
+
+### Volumes ###
+volumes:
+  uptime-kuma-data:
+    driver: local
+    name: ${STACK_NAME:-uptime-kuma}-data
+
+
+### Networks ###
+networks:
+  local:
+    driver: bridge
+    name: ${STACK_NAME:-uptime-kuma}
+    enable_ipv6: true
+  proxy:
+    name: ${PROXY_NETWORK:-EDGEPROXY}
+    external: true

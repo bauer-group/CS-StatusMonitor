@@ -1,0 +1,57 @@
+# =============================================================================
+# Status Monitor (Uptime Kuma) - Coolify Deployment
+# =============================================================================
+# Deploy via the Coolify UI with this compose file. Coolify generates the
+# Traefik routers automatically from the per-service domain you configure in
+# the dashboard — this file only exposes the right port.
+#
+# Configure in Coolify (Service → Configuration):
+#   - uptime-kuma → Domain = https://${SERVICE_HOSTNAME}   Port = 3001
+#
+# Coolify terminates HTTPS and forwards WebSockets transparently. Set
+# STACK_NAME, TIME_ZONE and the optional UPTIME_KUMA_* knobs in the dashboard.
+#
+# First start: open the dashboard and complete the setup wizard to create the
+# admin account (persisted in the uptime-kuma-data volume).
+# =============================================================================
+
+
+### Service Templates ###
+x-logging: &logging
+  logging:
+    driver: json-file
+    options:
+      max-size: "50m"
+      max-file: "3"
+
+
+services:
+### Status Monitor ###
+  uptime-kuma:
+    image: ${UPTIME_KUMA_IMAGE:-ghcr.io/bauer-group/cs-statusmonitor/uptime-kuma}:${UPTIME_KUMA_IMAGE_VERSION:-latest}
+    container_name: ${STACK_NAME:-uptime-kuma}_SERVER
+    restart: unless-stopped
+    <<: *logging
+    environment:
+      - TZ=${TIME_ZONE:-Etc/UTC}
+      - UPTIME_KUMA_HOST=${UPTIME_KUMA_HOST:-::}
+      - UPTIME_KUMA_WS_ORIGIN_CHECK=${UPTIME_KUMA_WS_ORIGIN_CHECK:-cors-like}
+      - UPTIME_KUMA_DISABLE_FRAME_SAMEORIGIN=${UPTIME_KUMA_DISABLE_FRAME_SAMEORIGIN:-false}
+    expose:
+      # Coolify routes ${SERVICE_HOSTNAME} -> 3001 from the dashboard
+      - 3001/tcp
+    volumes:
+      - uptime-kuma-data:/app/data
+    healthcheck:
+      test: ["CMD", "extra/healthcheck"]
+      interval: 60s
+      timeout: 30s
+      retries: 5
+      start_period: 180s
+
+
+### Volumes ###
+volumes:
+  uptime-kuma-data:
+    driver: local
+    name: ${STACK_NAME:-uptime-kuma}-data

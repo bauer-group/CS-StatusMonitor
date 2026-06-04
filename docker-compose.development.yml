@@ -1,0 +1,70 @@
+# =============================================================================
+# Status Monitor (Uptime Kuma) - Development Mode (Local Build)
+# =============================================================================
+# Usage: docker compose -f docker-compose.development.yml up -d --build
+#
+# Builds the BAUER GROUP edition image locally from src/uptime-kuma instead of
+# pulling it from GHCR. Direct host port, self-contained — no reverse proxy.
+#
+# Access:
+#   - Dashboard  http://localhost:${PORT_HTTP:-3001}
+#
+# First start: open the dashboard and complete the setup wizard to create the
+# admin account (persisted in the uptime-kuma-data volume).
+# =============================================================================
+
+
+### Service Templates ###
+x-uptime-kuma-common: &uptime-kuma-common
+  restart: unless-stopped
+  logging:
+    driver: json-file
+    options:
+      max-size: "50m"
+      max-file: "3"
+  environment:
+    - TZ=${TIME_ZONE:-Etc/UTC}
+    - UPTIME_KUMA_HOST=${UPTIME_KUMA_HOST:-::}
+    - UPTIME_KUMA_WS_ORIGIN_CHECK=${UPTIME_KUMA_WS_ORIGIN_CHECK:-cors-like}
+    - UPTIME_KUMA_DISABLE_FRAME_SAMEORIGIN=${UPTIME_KUMA_DISABLE_FRAME_SAMEORIGIN:-false}
+  healthcheck:
+    # Bundled checker hits the local dashboard port. start_period absorbs the
+    # first-boot DB init; interval/retries govern steady-state detection.
+    test: ["CMD", "extra/healthcheck"]
+    interval: 60s
+    timeout: 30s
+    retries: 5
+    start_period: 180s
+
+
+services:
+### Status Monitor ###
+  uptime-kuma:
+    <<: *uptime-kuma-common
+    build:
+      context: ./src/uptime-kuma
+      args:
+        UPTIME_KUMA_REPOSITORY: ${UPTIME_KUMA_REPOSITORY:-louislam/uptime-kuma}
+        UPTIME_KUMA_VERSION: ${UPTIME_KUMA_VERSION:-2}
+    container_name: ${STACK_NAME:-uptime-kuma}_SERVER
+    ports:
+      - "${PORT_HTTP:-3001}:3001"
+    volumes:
+      - uptime-kuma-data:/app/data
+    networks:
+      local:
+
+
+### Volumes ###
+volumes:
+  uptime-kuma-data:
+    driver: local
+    name: ${STACK_NAME:-uptime-kuma}-data
+
+
+### Networks ###
+networks:
+  local:
+    driver: bridge
+    name: ${STACK_NAME:-uptime-kuma}
+    enable_ipv6: true
