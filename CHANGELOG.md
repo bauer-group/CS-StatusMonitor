@@ -1,3 +1,13 @@
+## [0.1.0](https://github.com/bauer-group/CS-StatusMonitor/compare/v0.0.0...v0.1.0) (2026-06-05)
+
+### 🚀 Features
+
+* added Uptime Kuma status monitor stack ([bb75ecf](https://github.com/bauer-group/CS-StatusMonitor/commit/bb75ecf0e1a5a41028f013cdeb3fdb962b0e389d))
+
+### ♻️ Refactoring
+
+* renamed image to status-monitor, dropped unused network ([f88b89b](https://github.com/bauer-group/CS-StatusMonitor/commit/f88b89bd5e4f2f83d37691c2039e95f5f0fe4770))
+
 # Changelog
 
 All notable changes to this project are documented here. This file is
