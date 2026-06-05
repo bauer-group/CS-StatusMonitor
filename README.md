@@ -73,14 +73,14 @@ a single data volume.
 │                     Docker Compose Stack                       │
 │                                                                │
 │   ┌────────────────────────────────────────────┐              │
-│   │                 uptime-kuma                  │              │
+│   │                status-monitor                │              │
 │   │            (BAUER GROUP edition)             │              │
 │   │                                              │              │
 │   │   HTTP + socket.io   :3001                   │              │
 │   │   Healthcheck        extra/healthcheck       │              │
 │   │   PID 1              dumb-init               │              │
 │   │                                              │              │
-│   │   /app/data ──► uptime-kuma-data volume      │              │
+│   │   /app/data ──► status-monitor-data volume   │              │
 │   │   (DB, monitors, notifications, users)       │              │
 │   └────────────────────────────────────────────┘              │
 │         ▲                                                       │
@@ -104,8 +104,8 @@ a single data volume.
 Everything is driven from `.env` — see [docs/configuration.md](docs/configuration.md)
 for the full variable reference. Highlights:
 
-- **Image** — `UPTIME_KUMA_IMAGE` / `…_IMAGE_VERSION` (GHCR pull) or
-  `UPTIME_KUMA_REPOSITORY` / `UPTIME_KUMA_VERSION` (local build base).
+- **Image** — `STATUS_MONITOR_IMAGE` / `…_IMAGE_VERSION` (our GHCR image) or
+  `UPTIME_KUMA_REPOSITORY` / `UPTIME_KUMA_VERSION` (upstream local build base).
 - **Proxy behaviour** — `UPTIME_KUMA_WS_ORIGIN_CHECK`,
   `UPTIME_KUMA_DISABLE_FRAME_SAMEORIGIN`.
 - **Networking** — `PORT_HTTP` (dev/single), `SERVICE_HOSTNAME` + `PROXY_NETWORK`
@@ -123,7 +123,7 @@ for the full variable reference. Highlights:
 - [Configuration](docs/configuration.md)
 - [Reverse proxy & TLS](docs/reverse-proxy.md)
 - [Backup & restore](docs/backup-and-restore.md)
-- [Server image reference](src/uptime-kuma/README.md)
+- [Server image reference](src/status-monitor/README.md)
 
 ## License
 

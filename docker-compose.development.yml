@@ -3,19 +3,19 @@
 # =============================================================================
 # Usage: docker compose -f docker-compose.development.yml up -d --build
 #
-# Builds the BAUER GROUP edition image locally from src/uptime-kuma instead of
-# pulling it from GHCR. Direct host port, self-contained — no reverse proxy.
+# Builds the BAUER GROUP edition image locally from src/status-monitor instead
+# of pulling it from GHCR. Direct host port, self-contained — no reverse proxy.
 #
 # Access:
 #   - Dashboard  http://localhost:${PORT_HTTP:-3001}
 #
 # First start: open the dashboard and complete the setup wizard to create the
-# admin account (persisted in the uptime-kuma-data volume).
+# admin account (persisted in the status-monitor-data volume).
 # =============================================================================
 
 
 ### Service Templates ###
-x-uptime-kuma-common: &uptime-kuma-common
+x-status-monitor-common: &status-monitor-common
   restart: unless-stopped
   logging:
     driver: json-file
@@ -39,32 +39,22 @@ x-uptime-kuma-common: &uptime-kuma-common
 
 services:
 ### Status Monitor ###
-  uptime-kuma:
-    <<: *uptime-kuma-common
+  status-monitor:
+    <<: *status-monitor-common
     build:
-      context: ./src/uptime-kuma
+      context: ./src/status-monitor
       args:
         UPTIME_KUMA_REPOSITORY: ${UPTIME_KUMA_REPOSITORY:-louislam/uptime-kuma}
         UPTIME_KUMA_VERSION: ${UPTIME_KUMA_VERSION:-2}
-    container_name: ${STACK_NAME:-uptime-kuma}_SERVER
+    container_name: ${STACK_NAME:-status-monitor}_SERVER
     ports:
       - "${PORT_HTTP:-3001}:3001"
     volumes:
-      - uptime-kuma-data:/app/data
-    networks:
-      local:
+      - status-monitor-data:/app/data
 
 
 ### Volumes ###
 volumes:
-  uptime-kuma-data:
+  status-monitor-data:
     driver: local
-    name: ${STACK_NAME:-uptime-kuma}-data
-
-
-### Networks ###
-networks:
-  local:
-    driver: bridge
-    name: ${STACK_NAME:-uptime-kuma}
-    enable_ipv6: true
+    name: ${STACK_NAME:-status-monitor}-data

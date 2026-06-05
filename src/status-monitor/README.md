@@ -1,5 +1,6 @@
-# Uptime Kuma Server Image
+# Status Monitor Server Image
 
+Published as `ghcr.io/bauer-group/cs-statusmonitor/status-monitor`.
 A thin, professional wrapper around the official
 [`louislam/uptime-kuma`](https://hub.docker.com/r/louislam/uptime-kuma) image —
 tracking the floating **`2`** tag (latest Uptime Kuma 2.x; major pinned to avoid
@@ -47,7 +48,7 @@ banner and `exec`s the original command.
 ```bash
 docker build \
   --build-arg UPTIME_KUMA_VERSION=2 \
-  -t ghcr.io/bauer-group/cs-statusmonitor/uptime-kuma:local .
+  -t ghcr.io/bauer-group/cs-statusmonitor/status-monitor:local .
 ```
 
 ## Environment

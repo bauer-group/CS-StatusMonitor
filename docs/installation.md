@@ -52,7 +52,7 @@ Open the dashboard and complete the one-time setup wizard:
 | Traefik / Coolify | `https://${SERVICE_HOSTNAME}` |
 
 The wizard creates the **administrator account** and writes it (with all future
-monitors, notifications and status pages) to the `uptime-kuma-data` volume.
+monitors, notifications and status pages) to the `status-monitor-data` volume.
 There is no admin password in `.env` by design.
 
 ## 4. Verify
@@ -62,7 +62,7 @@ There is no admin password in `.env` by design.
 docker compose -f docker-compose.development.yml ps
 
 # Boot banner + effective config
-docker compose -f docker-compose.development.yml logs uptime-kuma | head -n 30
+docker compose -f docker-compose.development.yml logs status-monitor | head -n 30
 
 # Dashboard reachable?
 curl -fsS http://localhost:3001 >/dev/null && echo OK
@@ -73,7 +73,7 @@ curl -fsS http://localhost:3001 >/dev/null && echo OK
 The data volume persists across restarts, so upgrades are non-destructive:
 
 ```bash
-# GHCR (single/traefik/coolify): bump UPTIME_KUMA_IMAGE_VERSION in .env, then
+# GHCR (single/traefik/coolify): bump STATUS_MONITOR_IMAGE_VERSION in .env, then
 docker compose -f docker-compose.single.yml pull
 docker compose -f docker-compose.single.yml up -d
 

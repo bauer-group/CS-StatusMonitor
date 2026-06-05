@@ -4,7 +4,7 @@
 # Watches:
 #   1. GitHub Actions versions (workflows pinned to @main pull module updates)
 #   2. Image references inside docker-compose*.yml files
-#   3. Base image in src/uptime-kuma/Dockerfile
+#   3. Base image in src/status-monitor/Dockerfile
 #
 # Pure digest drift on the existing tag is handled by check-base-images.yml
 # (daily cron); this surfaces tag bumps and version updates as PRs.
@@ -42,9 +42,9 @@ updates:
     commit-message:
       prefix: "chore(deps)"
 
-  # uptime-kuma base image (louislam/uptime-kuma in src/uptime-kuma/Dockerfile)
+  # uptime-kuma base image (louislam/uptime-kuma in src/status-monitor/Dockerfile)
   - package-ecosystem: "docker"
-    directory: "/src/uptime-kuma"
+    directory: "/src/status-monitor"
     schedule:
       interval: "weekly"
       day: "sunday"

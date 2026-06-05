@@ -2,7 +2,7 @@
 # Docker Maintenance — Auto-merge Dependabot PRs (src Dockerfile)
 # =============================================================================
 # When Dependabot opens a PR bumping the base image inside:
-#   - src/uptime-kuma/Dockerfile     (louislam/uptime-kuma:2)
+#   - src/status-monitor/Dockerfile   (louislam/uptime-kuma:2)
 # this workflow auto-approves and merges it (after validation passes), which
 # then triggers docker-release.yml to build and push the updated image.
 # =============================================================================
@@ -13,7 +13,7 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
     paths:
-      - 'src/uptime-kuma/Dockerfile'
+      - 'src/status-monitor/Dockerfile'
 
 permissions:
   contents: write

@@ -1,13 +1,13 @@
 {
   "$schema": "https://raw.githubusercontent.com/bauer-group/automation-templates/main/.github/config/docker-base-image-monitor/docker-base-images.schema.json",
-  "_description": "CS-StatusMonitor stack — the UPSTREAM base image consumed via src/uptime-kuma/Dockerfile. The monitor tracks its digest and triggers a release when it moves. It MUST NOT track this repo's own published image (ghcr.io/bauer-group/cs-statusmonitor/uptime-kuma): doing so would loop — a release republishes it, its digest moves, the monitor fires again, forever.",
+  "_description": "CS-StatusMonitor stack — the UPSTREAM base image consumed via src/status-monitor/Dockerfile. The monitor tracks its digest and triggers a release when it moves. It MUST NOT track this repo's own published image (ghcr.io/bauer-group/cs-statusmonitor/status-monitor): doing so would loop — a release republishes it, its digest moves, the monitor fires again, forever.",
   "images": [
     {
       "name": "uptime-kuma",
       "image": "louislam/uptime-kuma",
       "tag": "2",
       "variable": "UPTIME_KUMA_DIGEST",
-      "description": "Uptime Kuma base image, floating 2.x (src/uptime-kuma/Dockerfile)"
+      "description": "Uptime Kuma base image, floating 2.x (src/status-monitor/Dockerfile)"
     }
   ],
   "settings": {

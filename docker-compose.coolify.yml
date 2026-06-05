@@ -6,13 +6,13 @@
 # the dashboard — this file only exposes the right port.
 #
 # Configure in Coolify (Service → Configuration):
-#   - uptime-kuma → Domain = https://${SERVICE_HOSTNAME}   Port = 3001
+#   - status-monitor → Domain = https://${SERVICE_HOSTNAME}   Port = 3001
 #
 # Coolify terminates HTTPS and forwards WebSockets transparently. Set
 # STACK_NAME, TIME_ZONE and the optional UPTIME_KUMA_* knobs in the dashboard.
 #
 # First start: open the dashboard and complete the setup wizard to create the
-# admin account (persisted in the uptime-kuma-data volume).
+# admin account (persisted in the status-monitor-data volume).
 # =============================================================================
 
 
@@ -27,9 +27,9 @@ x-logging: &logging
 
 services:
 ### Status Monitor ###
-  uptime-kuma:
-    image: ${UPTIME_KUMA_IMAGE:-ghcr.io/bauer-group/cs-statusmonitor/uptime-kuma}:${UPTIME_KUMA_IMAGE_VERSION:-latest}
-    container_name: ${STACK_NAME:-uptime-kuma}_SERVER
+  status-monitor:
+    image: ${STATUS_MONITOR_IMAGE:-ghcr.io/bauer-group/cs-statusmonitor/status-monitor}:${STATUS_MONITOR_IMAGE_VERSION:-latest}
+    container_name: ${STACK_NAME:-status-monitor}_SERVER
     restart: unless-stopped
     <<: *logging
     environment:
@@ -41,7 +41,7 @@ services:
       # Coolify routes ${SERVICE_HOSTNAME} -> 3001 from the dashboard
       - 3001/tcp
     volumes:
-      - uptime-kuma-data:/app/data
+      - status-monitor-data:/app/data
     healthcheck:
       test: ["CMD", "extra/healthcheck"]
       interval: 60s
@@ -52,6 +52,6 @@ services:
 
 ### Volumes ###
 volumes:
-  uptime-kuma-data:
+  status-monitor-data:
     driver: local
-    name: ${STACK_NAME:-uptime-kuma}-data
+    name: ${STACK_NAME:-status-monitor}-data

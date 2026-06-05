@@ -10,8 +10,8 @@ database inside the data volume — **not** in environment variables.
 | --- | --- | --- | --- |
 | `STACK_NAME` | `status_example_domain_com` | all | prefix for container/volume/network names |
 | `TIME_ZONE` | `Etc/UTC` | all | container timezone (`TZ`) |
-| `UPTIME_KUMA_IMAGE` | `ghcr.io/bauer-group/cs-statusmonitor/uptime-kuma` | single/traefik/coolify | published image to pull |
-| `UPTIME_KUMA_IMAGE_VERSION` | `latest` | single/traefik/coolify | published image tag |
+| `STATUS_MONITOR_IMAGE` | `ghcr.io/bauer-group/cs-statusmonitor/status-monitor` | single/traefik/coolify | our published image to pull |
+| `STATUS_MONITOR_IMAGE_VERSION` | `latest` | single/traefik/coolify | our published image tag |
 | `UPTIME_KUMA_REPOSITORY` | `louislam/uptime-kuma` | development | upstream base image to build from |
 | `UPTIME_KUMA_VERSION` | `2` | development | upstream base tag (floating 2.x) |
 | `UPTIME_KUMA_HOST` | `::` | all | bind address inside the container |
@@ -32,7 +32,7 @@ If you ever need to reset a forgotten admin password, Uptime Kuma supports it
 from the host:
 
 ```bash
-docker compose -f docker-compose.single.yml exec uptime-kuma \
+docker compose -f docker-compose.single.yml exec status-monitor \
   node extra/reset-password.js
 ```
 

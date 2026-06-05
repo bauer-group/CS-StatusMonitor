@@ -39,7 +39,7 @@ jobs:
     with:
       compose-files: '["docker-compose.development.yml", "docker-compose.single.yml", "docker-compose.traefik.yml", "docker-compose.coolify.yml"]'
       env-file: '.env.example'
-      validate-services: '["uptime-kuma"]'
+      validate-services: '["status-monitor"]'
 
   validate-scripts:
     name: 🔍 Validate Shell Scripts
@@ -67,18 +67,18 @@ jobs:
     secrets: inherit
 
   # ============================================
-  # Docker Build & Push (uptime-kuma image)
+  # Docker Build & Push (status-monitor image)
   # ============================================
 
-  docker-build-uptime-kuma-release:
-    name: 🐳 Build & Push uptime-kuma
+  docker-build-status-monitor-release:
+    name: 🐳 Build & Push status-monitor
     needs: release
     if: needs.release.outputs.release-created == 'true'
     uses: bauer-group/automation-templates/.github/workflows/docker-build.yml@main
     with:
       deploy-environment: 'production'
       publish-to: 'ghcr'
-      ghcr-image-name: 'bauer-group/CS-StatusMonitor/uptime-kuma'
+      ghcr-image-name: 'bauer-group/CS-StatusMonitor/status-monitor'
       docker-image-name: 'bauergroup/cs-statusmonitor'
 
       release-version: ${{ needs.release.outputs.version }}
@@ -88,8 +88,8 @@ jobs:
       auto-tags: true
       latest-tag: true
 
-      dockerfile-path: './src/uptime-kuma/Dockerfile'
-      docker-context: './src/uptime-kuma'
+      dockerfile-path: './src/status-monitor/Dockerfile'
+      docker-context: './src/status-monitor'
       platforms: 'linux/amd64'
 
       push: true
@@ -100,8 +100,8 @@ jobs:
       sync-dockerhub-readme: true
     secrets: inherit
 
-  docker-build-uptime-kuma-pr:
-    name: 🔨 Validate uptime-kuma Build (PR)
+  docker-build-status-monitor-pr:
+    name: 🔨 Validate status-monitor Build (PR)
     needs: [validate-compose, validate-scripts]
     if: |
       github.event_name == 'pull_request' &&
@@ -110,11 +110,11 @@ jobs:
     uses: bauer-group/automation-templates/.github/workflows/docker-build.yml@main
     with:
       publish-to: 'ghcr'
-      ghcr-image-name: 'bauer-group/CS-StatusMonitor/uptime-kuma'
+      ghcr-image-name: 'bauer-group/CS-StatusMonitor/status-monitor'
 
       auto-tags: true
-      dockerfile-path: './src/uptime-kuma/Dockerfile'
-      docker-context: './src/uptime-kuma'
+      dockerfile-path: './src/status-monitor/Dockerfile'
+      docker-context: './src/status-monitor'
       platforms: 'linux/amd64'
 
       push: false

@@ -20,15 +20,15 @@ A cold backup (container stopped) guarantees a consistent database snapshot:
 ```bash
 COMPOSE=docker-compose.single.yml
 
-docker compose -f $COMPOSE stop uptime-kuma
+docker compose -f $COMPOSE stop status-monitor
 
 # Tar the volume contents to ./backup/ on the host
 docker run --rm \
-  -v ${STACK_NAME:-uptime-kuma}-data:/data:ro \
+  -v ${STACK_NAME:-status-monitor}-data:/data:ro \
   -v "$(pwd)/backup":/backup \
-  alpine tar czf /backup/uptime-kuma-$(date +%Y%m%d-%H%M%S).tar.gz -C /data .
+  alpine tar czf /backup/status-monitor-$(date +%Y%m%d-%H%M%S).tar.gz -C /data .
 
-docker compose -f $COMPOSE start uptime-kuma
+docker compose -f $COMPOSE start status-monitor
 ```
 
 ## Back up (hot)
@@ -46,9 +46,9 @@ COMPOSE=docker-compose.single.yml
 docker compose -f $COMPOSE down
 
 # Recreate an empty volume and extract the archive into it
-docker volume create ${STACK_NAME:-uptime-kuma}-data
+docker volume create ${STACK_NAME:-status-monitor}-data
 docker run --rm \
-  -v ${STACK_NAME:-uptime-kuma}-data:/data \
+  -v ${STACK_NAME:-status-monitor}-data:/data \
   -v "$(pwd)/backup":/backup \
   alpine sh -c "rm -rf /data/* && tar xzf /backup/<your-backup>.tar.gz -C /data"
 
