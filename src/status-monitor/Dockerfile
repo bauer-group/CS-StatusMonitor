@@ -46,7 +46,7 @@ LABEL org.opencontainers.image.licenses="MIT"
 LABEL org.opencontainers.image.source="https://github.com/bauer-group/CS-StatusMonitor"
 LABEL org.opencontainers.image.url="https://github.com/bauer-group/CS-StatusMonitor"
 LABEL org.opencontainers.image.documentation="https://github.com/bauer-group/CS-StatusMonitor#readme"
-LABEL org.opencontainers.image.version="0.1.0"
+LABEL org.opencontainers.image.version="0.1.1"
 
 # ---------------------------------------------------------------------------
 # Reverse-proxy friendly defaults (overridable via compose .env)
