@@ -14,7 +14,7 @@ database inside the data volume — **not** in environment variables.
 | `STATUS_MONITOR_IMAGE_VERSION` | `latest` | single/traefik/coolify | our published image tag |
 | `UPTIME_KUMA_REPOSITORY` | `louislam/uptime-kuma` | development | upstream base image to build from |
 | `UPTIME_KUMA_VERSION` | `2` | development | upstream base tag (floating 2.x) |
-| `UPTIME_KUMA_HOST` | `::` | all | bind address inside the container |
+| `UPTIME_KUMA_HOST` | *(unset → dual-stack `[::]`, IPv6+IPv4)* | all | bind address; set `0.0.0.0` only to force IPv4-only |
 | `UPTIME_KUMA_WS_ORIGIN_CHECK` | `cors-like` | all | WebSocket Origin verification |
 | `UPTIME_KUMA_DISABLE_FRAME_SAMEORIGIN` | `false` | all | allow embedding status pages in an iframe |
 | `PORT_HTTP` | `3001` | development/single | host port mapped to container `3001` |
@@ -38,9 +38,23 @@ docker compose -f docker-compose.single.yml exec status-monitor \
 
 ## Bind address (`UPTIME_KUMA_HOST`)
 
-The upstream default `::` binds dual-stack (IPv6 + IPv4-mapped) and works on the
-IPv6-enabled `local` network used by the development/single modes. If your host
-has IPv6 disabled and the container fails to bind, set:
+**Leave it unset (the default).** When `UPTIME_KUMA_HOST` is not set, Uptime Kuma
+binds a single dual-stack socket on `[::]:3001`, which serves **both IPv6 and
+IPv4** (via v4-mapped addresses, since Linux defaults `bindv6only=0`). The
+compose files declare it as a no-value pass-through, so it is only sent to the
+container when you actually set it in `.env`.
+
+Two things to avoid:
+
+- **Don't set it to an explicit `::`.** It binds the same dual-stack socket, but
+  Uptime Kuma then logs a harmless `Error printing server URLs: Invalid URL`
+  while building its startup banner (an unbracketed `::` isn't a valid URL host).
+  The app still runs — it's cosmetic — but leaving the variable unset avoids the
+  noise entirely.
+- **Don't pass it as an empty string.** Uptime Kuma coerces `""` back to `::`,
+  reintroducing the same log line.
+
+Set it only to **force IPv4-only** (drops IPv6):
 
 ```env
 UPTIME_KUMA_HOST=0.0.0.0

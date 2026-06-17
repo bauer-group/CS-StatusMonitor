@@ -35,7 +35,7 @@ The upstream runtime contract is preserved verbatim:
 
 ## Entrypoint chain
 
-```
+```text
 /usr/bin/dumb-init -- /usr/local/bin/docker-entrypoint-custom.sh node server/server.js
                       └── prints banner, then exec "$@"
 ```
@@ -55,7 +55,7 @@ docker build \
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
-| `UPTIME_KUMA_HOST` | `::` | bind address inside the container |
+| `UPTIME_KUMA_HOST` | *(unset → dual-stack `[::]`)* | bind address; set `0.0.0.0` only to force IPv4-only |
 | `UPTIME_KUMA_PORT` | `3001` | listen port |
 | `UPTIME_KUMA_WS_ORIGIN_CHECK` | `cors-like` | WebSocket Origin verification (`bypass` to disable) |
 | `UPTIME_KUMA_DISABLE_FRAME_SAMEORIGIN` | `false` | allow embedding status pages in an iframe |

@@ -30,7 +30,10 @@ x-status-monitor-common: &status-monitor-common
       max-file: "3"
   environment:
     - TZ=${TIME_ZONE:-Etc/UTC}
-    - UPTIME_KUMA_HOST=${UPTIME_KUMA_HOST:-::}
+    # Pass-through (no value): unset -> Uptime Kuma binds dual-stack [::] (IPv6 +
+    # IPv4) with clean logs. Set UPTIME_KUMA_HOST in .env only to override
+    # (e.g. 0.0.0.0 to force IPv4-only). Never set it to an explicit "::".
+    - UPTIME_KUMA_HOST
     - UPTIME_KUMA_WS_ORIGIN_CHECK=${UPTIME_KUMA_WS_ORIGIN_CHECK:-cors-like}
     - UPTIME_KUMA_DISABLE_FRAME_SAMEORIGIN=${UPTIME_KUMA_DISABLE_FRAME_SAMEORIGIN:-false}
   healthcheck:

@@ -13,7 +13,9 @@
 set -euo pipefail
 
 # --- Defaults (also declared in the Dockerfile / .env.example) ---------------
-: "${UPTIME_KUMA_HOST:=::}"
+# UPTIME_KUMA_HOST is intentionally NOT defaulted here: leaving it unset lets
+# Uptime Kuma bind dual-stack [::] (IPv6 + IPv4) without its "Invalid URL" log
+# noise. The banner below shows the effective value with a display-only fallback.
 : "${UPTIME_KUMA_PORT:=3001}"
 : "${UPTIME_KUMA_WS_ORIGIN_CHECK:=cors-like}"
 : "${UPTIME_KUMA_DISABLE_FRAME_SAMEORIGIN:=false}"
@@ -26,7 +28,7 @@ banner() {
   log "============================================="
   log "Hostname            : ${HOSTNAME:-unknown}"
   log "Timezone            : ${TZ:-Etc/UTC}"
-  log "Bind address        : ${UPTIME_KUMA_HOST}"
+  log "Bind address        : ${UPTIME_KUMA_HOST:-:: (dual-stack, IPv6+IPv4)}"
   log "Port                : ${UPTIME_KUMA_PORT}"
   log "Data directory      : /app/data"
   log "WS origin check     : ${UPTIME_KUMA_WS_ORIGIN_CHECK}"

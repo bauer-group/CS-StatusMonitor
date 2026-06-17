@@ -51,6 +51,12 @@ LABEL org.opencontainers.image.version="0.1.0"
 # ---------------------------------------------------------------------------
 # Reverse-proxy friendly defaults (overridable via compose .env)
 # ---------------------------------------------------------------------------
+# Bind address: deliberately NOT set. Uptime Kuma's built-in default binds
+# dual-stack [::] (full IPv6 + IPv4 via v4-mapped), which is exactly what we
+# want. Setting it explicitly to "::" binds the same socket but makes Uptime
+# Kuma log a harmless "Error printing server URLs: Invalid URL" (an unbracketed
+# "::" is not a valid URL host for its startup banner); leaving it unset avoids
+# that code path entirely. Set UPTIME_KUMA_HOST=0.0.0.0 only to force IPv4-only.
 ENV UPTIME_KUMA_WS_ORIGIN_CHECK=cors-like \
     UPTIME_KUMA_DISABLE_FRAME_SAMEORIGIN=false
 
