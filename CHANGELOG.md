@@ -1,3 +1,5 @@
+## [0.2.0](https://github.com/bauer-group/CS-StatusMonitor/compare/v0.1.2...v0.2.0) (2026-07-03)
+
 ## [0.1.2](https://github.com/bauer-group/CS-StatusMonitor/compare/v0.1.1...v0.1.2) (2026-06-17)
 
 ### 🐛 Bug Fixes
