@@ -37,10 +37,17 @@ docker compose -f docker-compose.single.yml up -d
 
 # Traefik — HTTPS dashboard via Let's Encrypt
 docker compose -f docker-compose.traefik.yml up -d
+
+# Cloudflare Tunnel — outbound tunnel, no open ports (needs TUNNEL_TOKEN)
+docker compose -f docker-compose.cloudflare.yml up -d
 ```
 
 For **Coolify**, import `docker-compose.coolify.yml` in the dashboard, set the
 service Domain to `https://${SERVICE_HOSTNAME}` on port `3001`, and deploy.
+
+For **Cloudflare Tunnel**, provision the tunnel with the OpenTofu module in
+`infrastructure/cloudflare/` (or the Zero Trust dashboard), set `TUNNEL_TOKEN`,
+then start the stack. See [cloudflare-tunnel.md](cloudflare-tunnel.md).
 
 ## 3. First-run setup
 

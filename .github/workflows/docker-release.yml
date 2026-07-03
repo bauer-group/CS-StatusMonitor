@@ -37,7 +37,7 @@ jobs:
     name: 🔍 Validate Docker Compose
     uses: bauer-group/automation-templates/.github/workflows/modules-validate-compose.yml@main
     with:
-      compose-files: '["docker-compose.development.yml", "docker-compose.single.yml", "docker-compose.traefik.yml", "docker-compose.coolify.yml"]'
+      compose-files: '["docker-compose.development.yml", "docker-compose.single.yml", "docker-compose.traefik.yml", "docker-compose.coolify.yml", "docker-compose.cloudflare.yml"]'
       env-file: '.env.example'
       validate-services: '["status-monitor"]'
 

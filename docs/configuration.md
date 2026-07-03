@@ -18,8 +18,11 @@ database inside the data volume — **not** in environment variables.
 | `UPTIME_KUMA_WS_ORIGIN_CHECK` | `cors-like` | all | WebSocket Origin verification |
 | `UPTIME_KUMA_DISABLE_FRAME_SAMEORIGIN` | `false` | all | allow embedding status pages in an iframe |
 | `PORT_HTTP` | `3001` | development/single | host port mapped to container `3001` |
-| `SERVICE_HOSTNAME` | `status.example.domain.com` | traefik/coolify | public hostname |
+| `SERVICE_HOSTNAME` | `status.example.domain.com` | traefik/coolify/cloudflare | public hostname |
 | `PROXY_NETWORK` | `EDGEPROXY` | traefik | external Traefik network name |
+| `CLOUDFLARED_IMAGE` | `ghcr.io/bauer-group/cs-cloudflaretunnel/cloudflared` | cloudflare | cloudflared image (BAUER GROUP edition, baked healthcheck) |
+| `CLOUDFLARED_VERSION` | `latest` | cloudflare | cloudflared image tag |
+| `TUNNEL_TOKEN` | *(empty — secret)* | cloudflare | tunnel run token, from `tofu output -raw tunnel_token` or the Zero Trust dashboard |
 
 ## First-run setup wizard
 

@@ -24,8 +24,9 @@ a single data volume.
 - **Reverse-proxy ready** — sane `UPTIME_KUMA_WS_ORIGIN_CHECK` + iframe defaults
   baked into the image; WebSockets work through Traefik/Coolify with zero extra
   config. See [docs/reverse-proxy.md](docs/reverse-proxy.md).
-- **Four deployment modes** — development (local build), single (direct port),
-  Traefik (HTTPS + Let's Encrypt), Coolify (dashboard domains).
+- **Five deployment modes** — development (local build), single (direct port),
+  Traefik (HTTPS + Let's Encrypt), Coolify (dashboard domains), Cloudflare Tunnel
+  (outbound tunnel, no open ports).
 - **CI/CD automation** — semantic releases, GHCR image builds, base-image
   monitoring, Dependabot auto-merge, SBOMs, Teams + AI issue triage.
 
@@ -56,6 +57,9 @@ a single data volume.
 
    # Traefik (HTTPS dashboard via Let's Encrypt)
    docker compose -f docker-compose.traefik.yml up -d
+
+   # Cloudflare Tunnel (outbound tunnel, no open ports — needs TUNNEL_TOKEN)
+   docker compose -f docker-compose.cloudflare.yml up -d
    ```
 
 5. **Set up** — open the dashboard and complete the setup wizard (creates the
@@ -64,7 +68,7 @@ a single data volume.
    | Mode | URL |
    | --- | --- |
    | Development / Single | `http://localhost:3001` |
-   | Traefik / Coolify | `https://${SERVICE_HOSTNAME}` |
+   | Traefik / Coolify / Cloudflare | `https://${SERVICE_HOSTNAME}` |
 
 ## Architecture
 
@@ -98,6 +102,7 @@ a single data volume.
 | **Single** | `docker-compose.single.yml` | host port | simple single-host, GHCR image |
 | **Traefik** | `docker-compose.traefik.yml` | Traefik + Let's Encrypt | HTTPS dashboard |
 | **Coolify** | `docker-compose.coolify.yml` | Coolify dashboard | PaaS-managed domains & TLS |
+| **Cloudflare Tunnel** | `docker-compose.cloudflare.yml` | Cloudflare edge (outbound tunnel) | zero open ports, TLS at the edge |
 
 ## Configuration
 
@@ -122,6 +127,7 @@ for the full variable reference. Highlights:
 - [Installation](docs/installation.md)
 - [Configuration](docs/configuration.md)
 - [Reverse proxy & TLS](docs/reverse-proxy.md)
+- [Cloudflare Tunnel](docs/cloudflare-tunnel.md)
 - [Backup & restore](docs/backup-and-restore.md)
 - [Server image reference](src/status-monitor/README.md)
 

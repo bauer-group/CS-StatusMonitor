@@ -36,6 +36,16 @@ Set the service **Domain** to `https://${SERVICE_HOSTNAME}` on port `3001` in
 the Coolify dashboard. Coolify generates the Traefik routers and manages the
 certificate; this compose file only exposes the port.
 
+## Cloudflare Tunnel (`docker-compose.cloudflare.yml`)
+
+An outbound Cloudflare Tunnel replaces the reverse proxy entirely: `cloudflared`
+runs as a sidecar and dials out to Cloudflare, so there is no inbound port and no
+origin certificate — TLS terminates at the Cloudflare edge. cloudflared forwards
+the `Host` header and upgrades the WebSocket automatically, so the default
+`cors-like` Origin check works out of the box. See
+[cloudflare-tunnel.md](cloudflare-tunnel.md) for the full setup (OpenTofu module +
+dashboard fallback).
+
 ## Generic nginx (reference)
 
 If you front it with your own nginx instead, the WebSocket upgrade must be

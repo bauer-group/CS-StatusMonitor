@@ -1,0 +1,24 @@
+# =============================================================================
+# Example variables — copy to terraform.tfvars (gitignored) and fill in.
+# Secrets preferably via ENV:  export TF_VAR_cloudflare_api_token=...
+# =============================================================================
+
+# ── Cloudflare access ────────────────────────────────────────────────────────
+# cloudflare_api_token = "..."      # BETTER via ENV TF_VAR_cloudflare_api_token
+cloudflare_account_id = "<account-id>"
+cloudflare_zone_id    = "<zone-id>"
+cloudflare_zone       = "example.domain.com"
+
+# ── Tunnel / hostname ────────────────────────────────────────────────────────
+tunnel_name      = "status-monitor"
+service_hostname = "status.example.domain.com"
+
+# ── Internal target (Docker network 'local') ─────────────────────────────────
+service_url = "http://status-monitor:3001"
+
+# ── Cloudflare Access (optional — private status page) ───────────────────────
+# Leave false for a normal PUBLIC status page. Set true ONLY for a fully-internal
+# status page — it gates the public status pages behind a Cloudflare login too.
+access_enabled              = false
+access_allowed_email_domain = "de.bauer-group.com"
+access_session_duration     = "24h"

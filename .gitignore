@@ -34,3 +34,14 @@ logs/
 # Local Uptime Kuma data (only ever created by accident — the real data lives
 # in the named Docker volume, never in the repo)
 data/
+
+# Terraform / OpenTofu (infrastructure/cloudflare) — never commit state or vars,
+# but DO commit .terraform.lock.hcl (pins provider versions) and *.tfvars.example
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+override.tf
+override.tf.json
+crash.log

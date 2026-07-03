@@ -1,0 +1,117 @@
+# =============================================================================
+# Status Monitor (Uptime Kuma) - Single Server Mode (Cloudflare Tunnel)
+# =============================================================================
+# Usage: docker compose -f docker-compose.cloudflare.yml up -d
+#
+# The whole stack is reachable ONLY through an outbound Cloudflare Tunnel — there
+# is NO `ports:` / no host binding anywhere. cloudflared opens an outbound QUIC
+# connection to Cloudflare; the status page is bound to the tunnel internally over
+# the "local" Docker network. TLS is terminated at the Cloudflare edge, so the
+# origin needs no certificate (unlike the Traefik/Let's Encrypt mode).
+#
+# Remote-managed (token) mode — fits deployments that can only supply secrets as
+# an ENV variable. Ingress routing AND DNS are maintained by Cloudflare.
+#
+# Prerequisites (either path — full guide: docs/cloudflare-tunnel.md):
+#   IaC (recommended): provision the tunnel with infrastructure/cloudflare/
+#     (OpenTofu/Terraform), then TUNNEL_TOKEN="$(tofu output -raw tunnel_token)".
+#   Dashboard fallback: Zero Trust -> Networks -> Tunnels -> Create (Cloudflared)
+#     -> copy the token; add a Public Hostname mapping
+#       ${SERVICE_HOSTNAME} -> http://status-monitor:3001   (Service Type: HTTP)
+#     (Cloudflare auto-creates the proxied CNAME). Put the token in .env.
+#
+# The socket.io WebSocket is proxied transparently by cloudflared over the same
+# hostname — no extra Cloudflare configuration is required (WebSocket support is
+# on by default). Keep UPTIME_KUMA_WS_ORIGIN_CHECK=cors-like.
+#
+# Access:
+#   - Dashboard / status pages  https://${SERVICE_HOSTNAME}
+#
+# First start: open the dashboard and complete the setup wizard to create the
+# admin account (persisted in the status-monitor-data volume).
+# =============================================================================
+
+
+### Service Templates ###
+x-status-monitor-common: &status-monitor-common
+  image: ${STATUS_MONITOR_IMAGE:-ghcr.io/bauer-group/cs-statusmonitor/status-monitor}:${STATUS_MONITOR_IMAGE_VERSION:-latest}
+  restart: unless-stopped
+  logging:
+    driver: json-file
+    options:
+      max-size: "50m"
+      max-file: "3"
+  environment:
+    - TZ=${TIME_ZONE:-Etc/UTC}
+    # Pass-through (no value): unset -> Uptime Kuma binds dual-stack [::] (IPv6 +
+    # IPv4) with clean logs. Set UPTIME_KUMA_HOST in .env only to override
+    # (e.g. 0.0.0.0 to force IPv4-only). Never set it to an explicit "::".
+    - UPTIME_KUMA_HOST
+    - UPTIME_KUMA_WS_ORIGIN_CHECK=${UPTIME_KUMA_WS_ORIGIN_CHECK:-cors-like}
+    - UPTIME_KUMA_DISABLE_FRAME_SAMEORIGIN=${UPTIME_KUMA_DISABLE_FRAME_SAMEORIGIN:-false}
+  healthcheck:
+    test: ["CMD", "extra/healthcheck"]
+    interval: 60s
+    timeout: 30s
+    retries: 5
+    start_period: 180s
+
+
+services:
+### Status Monitor ###
+  status-monitor:
+    <<: *status-monitor-common
+    container_name: ${STACK_NAME:-status-monitor}_SERVER
+    # Network-internal only — deliberately NO `ports:` host binding. The tunnel
+    # reaches this by its Docker DNS name (status-monitor) on the "local" network.
+    expose:
+      - 3001/tcp
+    volumes:
+      - status-monitor-data:/app/data
+    networks:
+      local:
+
+
+### Cloudflare Tunnel (the only ingress from outside) ###
+  cloudflare-tunnel:
+    # BAUER GROUP Edition: distroless cloudflared + built-in HEALTHCHECK against
+    # the /ready metrics endpoint (the stock image is distroless and cannot run a
+    # Docker healthcheck). See github.com/bauer-group/CS-CloudflareTunnel
+    image: ${CLOUDFLARED_IMAGE:-ghcr.io/bauer-group/cs-cloudflaretunnel/cloudflared}:${CLOUDFLARED_VERSION:-latest}
+    container_name: ${STACK_NAME:-status-monitor}_TUNNEL
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+    # Token mode: cloudflared reads TUNNEL_TOKEN from the ENV (not from argv, so it
+    # is invisible in `ps`/logs). Ingress + DNS come from Cloudflare (IaC or the
+    # dashboard). The start command is baked into the image — deliberately NO
+    # `command:` override:
+    #   ENTRYPOINT ["cloudflared","--no-autoupdate"]
+    #   CMD        ["tunnel","--metrics","0.0.0.0:2000","run"]
+    # -> --metrics and the /ready endpoint for the HEALTHCHECK are already built in.
+    environment:
+      - TZ=${TIME_ZONE:-Etc/UTC}
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+    depends_on:
+      status-monitor:
+        condition: service_healthy
+    networks:
+      local:
+
+
+### Volumes ###
+volumes:
+  status-monitor-data:
+    driver: local
+    name: ${STACK_NAME:-status-monitor}-data
+
+
+### Networks ###
+networks:
+  local:
+    driver: bridge
+    name: ${STACK_NAME:-status-monitor}
+    enable_ipv6: true
