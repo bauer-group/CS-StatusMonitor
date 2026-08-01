@@ -1,3 +1,9 @@
+## [0.2.1](https://github.com/bauer-group/CS-StatusMonitor/compare/v0.2.0...v0.2.1) (2026-08-01)
+
+### 🐛 Bug Fixes
+
+* **ci:** added the missing permissions block ([13f1434](https://github.com/bauer-group/CS-StatusMonitor/commit/13f1434cd046087b61585f40602919f6a15c14f4))
+
 ## [0.2.0](https://github.com/bauer-group/CS-StatusMonitor/compare/v0.1.2...v0.2.0) (2026-07-03)
 
 ## [0.1.2](https://github.com/bauer-group/CS-StatusMonitor/compare/v0.1.1...v0.1.2) (2026-06-17)
