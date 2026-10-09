@@ -4,6 +4,14 @@ All notable changes to this project are documented here. This file is maintained
 automatically by [semantic-release](https://github.com/semantic-release/semantic-release)
 on every release to `main`.
 
+## [0.2.5](https://github.com/bauer-group/CS-StatusMonitor/compare/v0.2.4...v0.2.5) (2026-10-09)
+
+### 🔧 Maintenance
+
+* **ci:** removed issue AI summary workflow ([0e76b53](https://github.com/bauer-group/CS-StatusMonitor/commit/0e76b5396d742ec2cbc274fb1c4598f97a14ad8f)), references [bauer-group/automation-templates#105](https://github.com/bauer-group/automation-templates/issues/105)
+* **deps:** update base image uptime-kuma [skip ci] ([4085d0b](https://github.com/bauer-group/CS-StatusMonitor/commit/4085d0b46955f0f77a25664b76be7fe5eadf9400))
+* update Dockerfile version to 0.2.4 ([2ea553b](https://github.com/bauer-group/CS-StatusMonitor/commit/2ea553b32186088432a366e1ef1c681d63eb089f))
+
 ## [0.2.4](https://github.com/bauer-group/CS-StatusMonitor/compare/v0.2.3...v0.2.4) (2026-09-16)
 
 ### 🔧 Maintenance
