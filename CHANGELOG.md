@@ -4,6 +4,13 @@ All notable changes to this project are documented here. This file is maintained
 automatically by [semantic-release](https://github.com/semantic-release/semantic-release)
 on every release to `main`.
 
+## [0.2.6](https://github.com/bauer-group/CS-StatusMonitor/compare/v0.2.5...v0.2.6) (2026-10-23)
+
+### 🔧 Maintenance
+
+* **deps:** update base image uptime-kuma [skip ci] ([3291896](https://github.com/bauer-group/CS-StatusMonitor/commit/329189638021c7fab8e8cbf266f4ebb6bb8b85d0))
+* update Dockerfile version to 0.2.5 ([fad8772](https://github.com/bauer-group/CS-StatusMonitor/commit/fad87726665db644a5400e2af70b151b0d7003c0))
+
 ## [0.2.5](https://github.com/bauer-group/CS-StatusMonitor/compare/v0.2.4...v0.2.5) (2026-10-09)
 
 ### 🔧 Maintenance
