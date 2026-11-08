@@ -9,7 +9,8 @@
 #   - GitHub Actions updates and any change under .github/: left open by the
 #     module's own guard - merge by hand
 #   - a change docker-release.yml does not run for: left open, not tested
-# Only patch updates are merged (module default merge-update-types).
+# Patch and minor updates are merged once the required PR CI passed; majors
+# stay manual (module default merge-update-types).
 #
 # docker-release.yml only validates docker-compose*.yml (compose config), it
 # starts no stack. Dependabot finds nothing to update there today (every image
