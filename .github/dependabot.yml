@@ -8,6 +8,13 @@
 #
 # Pure digest drift on the existing tag is handled by check-base-images.yml
 # (daily cron); this surfaces tag bumps and version updates as PRs.
+#
+# Commit prefixes decide whether a merged update is released
+# (docker-maintenance.yml dispatches docker-release.yml after the merge):
+#   docker, docker-compose -> fix(docker): PATCH release, the image is rebuilt
+#                             (the base image and the compose files operators
+#                             deploy, Coolify included, ship to users)
+#   github-actions         -> chore(ci): no release, never auto-merged
 # =============================================================================
 
 version: 2
@@ -40,7 +47,7 @@ updates:
       - "docker"
       - "dependabot"
     commit-message:
-      prefix: "chore(deps)"
+      prefix: "fix(docker)"
 
   # uptime-kuma base image (louislam/uptime-kuma in src/status-monitor/Dockerfile)
   - package-ecosystem: "docker"
@@ -55,4 +62,4 @@ updates:
       - "docker"
       - "dependabot"
     commit-message:
-      prefix: "chore(docker)"
+      prefix: "fix(docker)"
