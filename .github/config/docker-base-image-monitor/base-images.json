@@ -5,7 +5,7 @@
     {
       "name": "uptime-kuma",
       "image": "louislam/uptime-kuma",
-      "tag": "2",
+      "dockerfile": "src/status-monitor/Dockerfile",
       "variable": "UPTIME_KUMA_DIGEST",
       "description": "Uptime Kuma base image, floating 2.x (src/status-monitor/Dockerfile)"
     }
